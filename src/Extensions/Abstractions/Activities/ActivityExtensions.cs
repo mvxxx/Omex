@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.Omex.Extensions.Abstractions.Activities.Processing;
 
@@ -11,6 +12,10 @@ namespace Microsoft.Omex.Extensions.Abstractions.Activities
 	/// <summary>
 	/// Extensions for Activity
 	/// </summary>
+	/// <remarks>
+	/// Setters would be used in combination with ActivitySource, so they work on nullable Activity returned by ActivitySource.StartActivity.
+	/// Getters are mostly used in activity listeners, so the require non-nullable Activity, since usually Activity processed after null check.
+	/// </remarks>
 	public static class ActivityExtensions
 	{
 		/// <summary>
@@ -38,61 +43,6 @@ namespace Microsoft.Omex.Extensions.Abstractions.Activities
 				StringComparison.OrdinalIgnoreCase);
 
 		/// <summary>
-		/// Set user hash for the activity
-		/// </summary>
-		/// <remarks>This property would be transfered to child activity and via web requests</remarks>
-		public static Activity SetUserHash(this Activity activity, string userHash) =>
-			activity.SetBaggage(UserHashKey, userHash);
-
-		/// <summary>
-		/// Mark as health check activity
-		/// </summary>
-		/// <remarks>This property would be transfered to child activity and via web requests</remarks>
-		public static Activity MarkAsHealthCheck(this Activity activity) =>
-			activity.IsHealthCheck()
-				? activity
-				: activity.SetBaggage(HealthCheckMarkerKey, HealthCheckMarkerValue);
-
-		/// <summary>
-		/// Set result
-		/// </summary>
-		/// <remarks>This property won't be transferred to child activity or via web requests</remarks>
-		public static Activity SetResult(this Activity activity, ActivityResult result) =>
-			activity.SetTag(ActivityTagKeys.Result, ActivityResultStrings.ResultToString(result));
-
-		/// <summary>
-		/// Set activity result to Success
-		/// </summary>
-		/// <remarks>This property won't be transferred to child activity or via web requests</remarks>
-		public static Activity MarkAsSuccess(this Activity activity) => activity.SetResult(ActivityResult.Success);
-
-		/// <summary>
-		/// Set activity result to SystemError
-		/// </summary>
-		/// <remarks>This property won't be transferred to child activity or via web requests</remarks>
-		public static Activity MarkAsSystemError(this Activity activity) => activity.SetResult(ActivityResult.SystemError);
-
-		/// <summary>
-		/// Set activity result to ExpectedError
-		/// </summary>
-		/// <remarks>This property won't be transferred to child activity or via web requests</remarks>
-		public static Activity MarkAsExpectedError(this Activity activity) => activity.SetResult(ActivityResult.ExpectedError);
-
-		/// <summary>
-		/// Set sub type
-		/// </summary>
-		/// <remarks>This property won't be transfered to child activity or via web requests</remarks>
-		public static Activity SetSubType(this Activity activity, string subType) =>
-			activity.SetTag(ActivityTagKeys.SubType, subType);
-
-		/// <summary>
-		/// Set metadata
-		/// </summary>
-		/// <remarks>This property won't be transfered to child activity or via web requests</remarks>
-		public static Activity SetMetadata(this Activity activity, string metadata) =>
-			activity.SetTag(ActivityTagKeys.Metadata, metadata);
-
-		/// <summary>
 		/// Get correlation guid that is used by old Omex services
 		/// </summary>
 		[Obsolete(CorrelationIdObsoleteMessage, false)]
@@ -100,14 +50,6 @@ namespace Microsoft.Omex.Extensions.Abstractions.Activities
 			Guid.TryParse(activity.GetBaggageItem(ObsoleteCorrelationId), out Guid correlation)
 				? correlation
 				: (Guid?)null;
-
-		/// <summary>
-		/// Set correlation guid that is used by old Omex services
-		/// </summary>
-		/// <remarks>This property would be transfered to child activity and via web requests</remarks>
-		[Obsolete(CorrelationIdObsoleteMessage, false)]
-		public static Activity SetObsoleteCorrelationId(this Activity activity, Guid correlation) =>
-			activity.SetBaggage(ObsoleteCorrelationId, correlation.ToString());
 
 		/// <summary>
 		/// Get transaction id that is used by old Omex services
@@ -119,12 +61,85 @@ namespace Microsoft.Omex.Extensions.Abstractions.Activities
 				: (uint?)null;
 
 		/// <summary>
+		/// Set user hash for the activity
+		/// </summary>
+		/// <remarks>This property would be transfered to child activity and via web requests</remarks>
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? SetUserHash(this Activity? activity, string userHash) =>
+			activity?.SetBaggage(UserHashKey, userHash);
+
+		/// <summary>
+		/// Mark as health check activity
+		/// </summary>
+		/// <remarks>This property would be transfered to child activity and via web requests</remarks>
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? MarkAsHealthCheck(this Activity? activity) =>
+			activity != null && !activity.IsHealthCheck()
+				? activity.SetBaggage(HealthCheckMarkerKey, HealthCheckMarkerValue)
+				: activity;
+
+		/// <summary>
+		/// Set result
+		/// </summary>
+		/// <remarks>This property won't be transferred to child activity or via web requests</remarks>
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? SetResult(this Activity? activity, ActivityResult result) =>
+			activity?.SetTag(ActivityTagKeys.Result, ActivityResultStrings.ResultToString(result));
+
+		/// <summary>
+		/// Set activity result to Success
+		/// </summary>
+		/// <remarks>This property won't be transferred to child activity or via web requests</remarks>
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? MarkAsSuccess(this Activity? activity) => activity.SetResult(ActivityResult.Success);
+
+		/// <summary>
+		/// Set activity result to SystemError
+		/// </summary>
+		/// <remarks>This property won't be transferred to child activity or via web requests</remarks>
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? MarkAsSystemError(this Activity? activity) => activity.SetResult(ActivityResult.SystemError);
+
+		/// <summary>
+		/// Set activity result to ExpectedError
+		/// </summary>
+		/// <remarks>This property won't be transferred to child activity or via web requests</remarks>
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? MarkAsExpectedError(this Activity? activity) => activity.SetResult(ActivityResult.ExpectedError);
+
+		/// <summary>
+		/// Set sub type
+		/// </summary>
+		/// <remarks>This property won't be transfered to child activity or via web requests</remarks>
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? SetSubType(this Activity? activity, string subType) =>
+			activity?.SetTag(ActivityTagKeys.SubType, subType);
+
+		/// <summary>
+		/// Set metadata
+		/// </summary>
+		/// <remarks>This property won't be transfered to child activity or via web requests</remarks>
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? SetMetadata(this Activity? activity, string metadata) =>
+			activity?.SetTag(ActivityTagKeys.Metadata, metadata);
+
+		/// <summary>
+		/// Set correlation guid that is used by old Omex services
+		/// </summary>
+		/// <remarks>This property would be transfered to child activity and via web requests</remarks>
+		[Obsolete(CorrelationIdObsoleteMessage, false)]
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? SetObsoleteCorrelationId(this Activity? activity, Guid correlation) =>
+			activity?.SetBaggage(ObsoleteCorrelationId, correlation.ToString());
+
+		/// <summary>
 		/// Set transaction id that is used by old Omex services
 		/// </summary>
 		/// <remarks>This property would be transfered to child activity and via web requests</remarks>
 		[Obsolete(TransactionIdObsoleteMessage, false)]
-		public static Activity SetObsoleteTransactionId(this Activity activity, uint transactionId) =>
-			activity.SetBaggage(ObsoleteTransactionId, transactionId.ToString(CultureInfo.InvariantCulture));
+		[return: NotNullIfNotNull("activity")]
+		public static Activity? SetObsoleteTransactionId(this Activity? activity, uint transactionId) =>
+			activity?.SetBaggage(ObsoleteTransactionId, transactionId.ToString(CultureInfo.InvariantCulture));
 
 		private const string UserHashKey = "UserHash";
 		private const string HealthCheckMarkerKey = "HealthCheckMarker";

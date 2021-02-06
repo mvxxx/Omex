@@ -17,9 +17,9 @@ namespace Microsoft.Omex.Extensions.Abstractions.Activities
 		public static async ValueTask<TResult> WithActivity<TResult>(this ValueTask<TResult> task, ActivitySource provider, string name)
 		{
 			using Activity? activity = provider.StartActivity(name);
-			activity?.MarkAsSystemError();
+			activity.MarkAsSystemError();
 			TResult result = await task.ConfigureAwait(false);
-			activity?.MarkAsSuccess(); // set Activity result to success in case if task completed properly (without exception)
+			activity.MarkAsSuccess(); // set Activity result to success in case if task completed properly (without exception)
 			return result;
 		}
 
