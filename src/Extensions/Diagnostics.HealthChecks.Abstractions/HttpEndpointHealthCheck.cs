@@ -12,12 +12,25 @@ using Microsoft.Omex.Extensions.Abstractions;
 
 namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions
 {
-	internal class HttpEndpointHealthCheck : AbstractHealthCheck<HttpHealthCheckParameters>
+	/// <summary>
+	/// 
+	/// </summary>
+	public class HttpEndpointHealthCheck : AbstractHealthCheck<HttpHealthCheckParameters>
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public static string HttpClientLogicalName { get; } = "HttpEndpointHealthCheckHttpClient";
 
 		private readonly IHttpClientFactory m_httpClientFactory;
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="parameters"></param>
+		/// <param name="httpClientFactory"></param>
+		/// <param name="logger"></param>
+		/// <param name="activitySource"></param>
 		public HttpEndpointHealthCheck(
 			HttpHealthCheckParameters parameters,
 			IHttpClientFactory httpClientFactory,
@@ -28,6 +41,11 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions
 			m_httpClientFactory = httpClientFactory;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="token"></param>
 		protected override async Task<HealthCheckResult> CheckHealthInternalAsync(HealthCheckContext context, CancellationToken token)
 		{
 			string checkName = context.Registration.Name;

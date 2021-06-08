@@ -41,14 +41,6 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
 			return serviceCollection.AddServiceFabricHealthChecks<ServiceFabricHealthCheckPublisher>();
 		}
 
-		/// <summary>
-		/// Register publisher for processing health check results directly to nodes using REST api
-		/// </summary>
-		public static IHealthChecksBuilder AddRestHealthChecks(this IServiceCollection serviceCollection)
-		{
-			serviceCollection.AddServiceFabricClient();
-			return serviceCollection.AddServiceFabricHealthChecks<RestHealthCheckPublisher>();
-		}
 
 		/// <summary>
 		/// Register publisher for processing health check results
@@ -58,16 +50,6 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
 		{
 			serviceCollection.AddPublisherDependencies();
 			return serviceCollection.AddHealthCheckPublisher<TPublisher>().AddHealthChecks();
-		}
-
-		/// <summary>
-		/// Register publisher using Dependency Injection
-		/// </summary>
-		public static IServiceCollection AddHealthCheckPublisher<TPublisher>(this IServiceCollection serviceCollection)
-			where TPublisher : class, IHealthCheckPublisher
-		{
-			serviceCollection.TryAddEnumerable(ServiceDescriptor.Singleton<IHealthCheckPublisher, TPublisher>());
-			return serviceCollection;
 		}
 	}
 }

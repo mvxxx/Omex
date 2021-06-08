@@ -11,18 +11,42 @@ using Microsoft.Extensions.ObjectPool;
 
 namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions
 {
-	internal abstract class HealthCheckPublisher : IHealthCheckPublisher
+	/// <summary>
+	/// Base health check class
+	/// </summary>
+	public abstract class HealthCheckPublisher : IHealthCheckPublisher
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		protected readonly ObjectPool<StringBuilder> StringBuilderPool;
 
-		internal abstract string HealthReportSourceId { get; }
+		/// <summary>
+		/// 
+		/// </summary>
+		protected abstract string HealthReportSourceId { get; }
 
 		internal const string HealthReportSummaryProperty = "HealthReportSummary";
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="objectPoolProvider"></param>
 		public HealthCheckPublisher(ObjectPoolProvider objectPoolProvider) => StringBuilderPool = objectPoolProvider.CreateStringBuilderPool();
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="report"></param>
+		/// <param name="cancellationToken"></param>
 		public abstract Task PublishAsync(HealthReport report, CancellationToken cancellationToken);
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="report"></param>
+		/// <param name="publishFunc"></param>
+		/// <param name="cancellationToken"></param>
 		protected void PublishAllEntries(HealthReport report, Action<HealthStatus, string> publishFunc,
 			 CancellationToken cancellationToken)
 		{
@@ -38,6 +62,10 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions
 		}
 
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="report"></param>
 		protected string BuildSfHealthInformationDescription(HealthReport report)
 		{
 			int entriesCount = report.Entries.Count;
@@ -85,6 +113,10 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions
 			return description;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="reportEntry"></param>
 		protected string BuildSfHealthInformationDescription(HealthReportEntry reportEntry)
 		{
 			StringBuilder descriptionBuilder = StringBuilderPool.Get();

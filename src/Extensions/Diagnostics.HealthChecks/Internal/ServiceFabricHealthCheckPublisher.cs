@@ -10,8 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Omex.Extensions.Abstractions;
 using Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions;
-
-using SfHealthInformation = System.Fabric.Health.HealthInformation;
+using ServiceFabricHealth = System.Fabric.Health;
 
 namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
 {
@@ -20,8 +19,7 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
 		private readonly IAccessor<IServicePartition> m_partitionAccessor;
 
 		private readonly ILogger<ServiceFabricHealthCheckPublisher> m_logger;
-
-		internal override string HealthReportSourceId => nameof(ServiceFabricHealthCheckPublisher);
+		protected override string HealthReportSourceId => nameof(ServiceFabricHealthCheckPublisher);
 
 		public ServiceFabricHealthCheckPublisher(
 			IAccessor<IServicePartition> partitionAccessor,
@@ -43,16 +41,22 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
 			}
 
 			// Avoiding repeated pattern matching for each report entry.
-			Action<SfHealthInformation> reportHealth = partition switch
+			Action<ServiceFabricHealth.HealthInformation> reportHealth = partition switch
 			{
 				IStatefulServicePartition statefulPartition => statefulPartition.ReportReplicaHealth,
 				IStatelessServicePartition statelessPartition => statelessPartition.ReportInstanceHealth,
 				_ => throw new ArgumentException($"Service partition type '{partition.GetType()}' is not supported."),
 			};
 
+			Action<HealthStatus, string> reportHealthWithConvert = new((status, description) =>
+			{
+				reportHealth(new ServiceFabricHealth.HealthInformation(HealthReportSourceId, description, ToSfHealthState(status)));
+			});
+
 			try
 			{
-				PublishAllEntries(report, reportHealth, cancellationToken);
+				PublishAllEntries(report, reportHealthWithConvert, cancellationToken);
+			}
 			catch (FabricObjectClosedException)
 			{
 				// Ignore, the service instance is closing.
@@ -60,5 +64,14 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
 
 			return Task.CompletedTask;
 		}
+
+		private ServiceFabricHealth.HealthState ToSfHealthState(HealthStatus healthStatus) =>
+			healthStatus switch
+			{
+				HealthStatus.Healthy => ServiceFabricHealth.HealthState.Ok,
+				HealthStatus.Degraded => ServiceFabricHealth.HealthState.Warning,
+				HealthStatus.Unhealthy => ServiceFabricHealth.HealthState.Error,
+				_ => throw new ArgumentException($"'{healthStatus}' is not a valid health status."),
+			};
 	}
 }

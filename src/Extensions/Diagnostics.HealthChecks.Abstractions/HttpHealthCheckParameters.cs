@@ -10,12 +10,24 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions
 {
-	internal class HttpHealthCheckParameters : HealthCheckParameters
+	/// <summary>
+	/// 
+	/// </summary>
+	public class HttpHealthCheckParameters : HealthCheckParameters
 	{
+		/// <summary>
+		/// 
+		/// </summary>
 		public HttpStatusCode ExpectedStatus { get; }
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public HttpRequestMessage RequestMessage { get; }
 
+		/// <summary>
+		/// 
+		/// </summary>
 		public Func<HttpResponseMessage, HealthCheckResult, Task<HealthCheckResult>>? AdditionalCheck { get; }
 
 		/// <summary>
