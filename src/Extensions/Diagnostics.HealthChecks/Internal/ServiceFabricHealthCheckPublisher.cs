@@ -9,6 +9,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Omex.Extensions.Abstractions;
+using Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions;
+
 using SfHealthInformation = System.Fabric.Health.HealthInformation;
 
 namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
@@ -48,7 +50,13 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
 				_ => throw new ArgumentException($"Service partition type '{partition.GetType()}' is not supported."),
 			};
 
-			PublishAllEntries(report, reportHealth, cancellationToken);
+			try
+			{
+				PublishAllEntries(report, reportHealth, cancellationToken);
+			catch (FabricObjectClosedException)
+			{
+				// Ignore, the service instance is closing.
+			}
 
 			return Task.CompletedTask;
 		}
