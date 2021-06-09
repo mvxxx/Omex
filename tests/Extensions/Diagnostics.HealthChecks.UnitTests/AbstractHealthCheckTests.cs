@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Omex.Extensions.Abstractions.Activities;
+using Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions;
 using Microsoft.Omex.Extensions.Testing.Helpers;
 using Microsoft.Omex.Extensions.Testing.Helpers.Activities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
