@@ -33,14 +33,6 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
 			serviceCollection.TryAddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
 		}
 
-		/// <summary>
-		/// Register publisher for processing health check results directly to replicas
-		/// </summary>
-		public static IHealthChecksBuilder AddServiceFabricHealthChecks(this IServiceCollection serviceCollection)
-		{
-			return serviceCollection.AddServiceFabricHealthChecks<ServiceFabricHealthCheckPublisher>();
-		}
-
 
 		/// <summary>
 		/// Register publisher for processing health check results

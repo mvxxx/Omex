@@ -24,7 +24,7 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks.Abstractions
 		/// <summary>
 		/// 
 		/// </summary>
-		protected abstract string HealthReportSourceId { get; }
+		public abstract string HealthReportSourceId { get; }
 
 		internal const string HealthReportSummaryProperty = "HealthReportSummary";
 

@@ -19,7 +19,7 @@ namespace Microsoft.Omex.Extensions.Diagnostics.HealthChecks
 		private readonly IAccessor<IServicePartition> m_partitionAccessor;
 
 		private readonly ILogger<ServiceFabricHealthCheckPublisher> m_logger;
-		protected override string HealthReportSourceId => nameof(ServiceFabricHealthCheckPublisher);
+		public override string HealthReportSourceId => nameof(ServiceFabricHealthCheckPublisher);
 
 		public ServiceFabricHealthCheckPublisher(
 			IAccessor<IServicePartition> partitionAccessor,
